@@ -1,0 +1,43 @@
+<div class="h-screen flex flex-col">
+  <form #searchForm="ngForm">
+    <mat-form-field class="w-full">
+      <input
+        matInput
+        placeholder="Enter a book title"
+        [ngModel]="searchText"
+        (input)="onSearchInputChange($event)"
+        name="searchText"
+        required
+      />
+      <button mat-icon-button matSuffix (click)="onSummit(searchForm.form)">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
+  <mat-list role="list" class="flex-grow min-h-0 overflow-y-auto">
+    @for (result of (searchResults$ | async)?.docs; track result.title) {
+    <mat-list-item role="listitem">
+      <img
+        matListItemAvatar
+        [src]="
+          'https://covers.openlibrary.org/b/olid/' +
+          result.cover_edition_key +
+          '-M.jpg'
+        "
+      />
+      <div matListItemTitle>{{ result.title }}</div>
+      <div matListItemLine>{{ result.author_name ? result.author_name.join(", ") : "" }}</div>
+    </mat-list-item>
+    }
+  </mat-list>
+  @if ((searchResults$ | async)?.num_found) {
+  <mat-paginator
+    class="border-0 border-t border-black border-solid"
+    [length]="(searchResults$ | async)?.num_found ?? 0"
+    [pageIndex]="(currentSearch$ | async)!.page - 1"
+    [pageSize]="(currentSearch$ | async)!.pageSize"
+    (page)="pageChange($event.pageIndex + 1)"
+    aria-label="Select page"
+  />
+  }
+</div>
